@@ -26,8 +26,3 @@ def registerMenuItem(module_info, base, adapts, name, permission, attributes={},
     grokcore.viewlet.util.make_checker(class_, class_, permission, ['update', 'render'])
 
 
-def registerMenu(module_info, base, adapts, name, attributes={}):
-    class_ = createClass(module_info, base, name, attributes)
-    component.provideAdapter(class_, adapts, IViewlet, name)
-
-

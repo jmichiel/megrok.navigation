@@ -11,13 +11,10 @@ import martian
 from zope.interface import Interface, implements
 from zope.component import queryMultiAdapter
 from zope.pagetemplate.interfaces import IPageTemplate
-from zope import schema, component
+from zope import schema
 from zope.site.hooks import getSite
-from zope.publisher.interfaces.browser import IBrowserView
-from zope.viewlet.interfaces import IViewlet
 
 from interfaces import IMenu, IMenuItem
-from util import registerMenuItem
 
 
 class BaseMenuOrItem(object):
