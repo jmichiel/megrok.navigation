@@ -28,7 +28,7 @@ setup(
     name=name,
     version=version,
     description = 'Navigation Menus for Grok',
-    long_description = '\n' + readme + '\n\n' + history + '\n',
+    long_description = '.. contents::\n\n' + readme + '\n\n=======\nHistory\n=======\n\n' + history + '\n',
     url='http://www.python.org/pypi/'+name,
     author='Jeroen Michiel',
     author_email='jmichiel@yahoo.com',
