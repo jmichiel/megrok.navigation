@@ -1,0 +1,3 @@
+<ul tal:attributes='class viewletmanager/cssClass'>
+<tal:repeat tal:repeat='viewlet viewletmanager/viewlets' tal:replace='structure viewlet/render'/>
+</ul>

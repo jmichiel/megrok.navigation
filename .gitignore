@@ -1,0 +1,10 @@
+
+*.egg-info
+*.pyc
+.installed.cfg
+.project
+.pydevproject*
+bin/
+develop-eggs/
+dist/
+parts/

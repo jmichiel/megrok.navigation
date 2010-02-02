@@ -1,0 +1,44 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:grok="http://namespaces.zope.org/grok"
+    i18n_domain="megrok.navigation"
+    package="megrok.navigation">
+
+
+  <!-- Packages with needed components -->
+  <include package="grok" />
+  <include package="zope.contentprovider" />
+  <include package="megrok.navigation" />
+  <include package="megrok.pagetemplate" file="meta.zcml"/>
+  
+
+  <grok:grok package="megrok.navigation.tests" />
+
+	<!-- Security -->
+  <securityPolicy
+      component="zope.securitypolicy.zopepolicy.ZopeSecurityPolicy"
+      />
+
+ <unauthenticatedPrincipal
+     id="zope.anybody"
+     title="Unauthenticated User" />
+
+  <principal
+      id="zope.user"
+      title="Some user"
+      login="user"
+      password="userpw"
+      />
+
+  <grantAll principal="zope.mgr" />
+
+  <grant permission="zope.View"
+	 principal="zope.anybody" />
+
+  <grant permission="zope.View"
+	 principal="zope.user" />
+
+  <grant permission="zope.ManageContent"
+	 principal="zope.user" />
+
+</configure>
