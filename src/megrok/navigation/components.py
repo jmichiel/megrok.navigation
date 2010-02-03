@@ -69,7 +69,7 @@ class submenu(martian.Directive):
         
 class menuitem(martian.Directive):
     scope = martian.CLASS
-    store = martian.ONCE
+    store = martian.DICT
     
     def factory(self, menu, title=None, order=0, icon=None):
         if not IMenu.implementedBy(menu):
@@ -77,7 +77,7 @@ class menuitem(martian.Directive):
                 "You can only pass a class implementing "
                 "megrok.navigation.interfaces.IMenu "
                 "to the '%s' directive." % self.name)
-        return menu, title, order, icon
+        return menu, (title, order, icon)
     
 class sitemenuitem(menuitem):
     pass
@@ -99,10 +99,6 @@ class SiteMenuItem(MenuItem):
         return self.view.url(getSite(), self.viewName)
         
         
-class ContextMenu(Menu):
-    grokcore.component.baseclass()
-    
-    
 class ContextMenuItem(MenuItem):
     grokcore.component.baseclass()
 

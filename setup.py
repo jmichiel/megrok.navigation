@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from os.path import join
 
 name='megrok.navigation'
-version='0.1'
+version='0.2'
 
 readme = open(join('src', 'megrok', 'navigation', "README.txt")).read()
 history = open('HISTORY.txt').read()
@@ -18,7 +18,7 @@ install_requires = [
 
 tests_require = install_requires + [
     'grok',
-    'zope.app.testing',
+    'zope.testing',
     'zope.testbrowser',
     'zope.contentprovider',
     'megrok.pagetemplate'

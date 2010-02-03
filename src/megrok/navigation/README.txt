@@ -6,11 +6,9 @@ Megrok.navigation lets you easily add all sorts of menus to a site.
 Menus are implemented as viewletmanagers, and items as viewlets.
 You can also override the default templates by registering your own IPageTemplate 
 
-    >>> import grok
-    >>> from zope.publisher.browser import TestRequest
-
 Let's first setup a simple site
 
+    >>> import grok
     >>> class MySite(grok.Container, grok.Application):
     ...     pass
     >>> grok_component('mysite', MySite)
@@ -18,9 +16,6 @@ Let's first setup a simple site
 
     >>> root = getRootFolder()
     >>> root['site'] = site = MySite()
-    >>> from zope.site.hooks import setSite
-    >>> setSite(site)
-    >>> request = TestRequest()
     
 Let us now define a menu
 
@@ -41,6 +36,8 @@ Rendering the menu now leaves us with an empty <ul>
     >>> from zope.security.testing import Principal, Participation
     >>> from zope.security.management import newInteraction, endInteraction
     >>> participation = Participation(Principal('zope.anybody'))
+    >>> from zope.publisher.browser import TestRequest
+    >>> request = TestRequest()
     >>> newInteraction(participation)
     >>> nav = Navigation(site, request, grok.View(site, request))
     >>> nav.update()
@@ -170,6 +167,8 @@ Context Menus
 -------------
 
 Context menus are meant to be used to show everything you can do (all views) with the current context.
+In fact all menus are context-sensitive, as a viewletmanager will only display viewlets that are appropriate for
+their current context.
 They are not implemented as IBrowserMenus, but implement the same use case.
 We'll first need some context to demonstrate
 
@@ -181,10 +180,10 @@ We'll first need some context to demonstrate
     >>> site['foo'] = foo = Foo()
     >>> site['foo2'] = Foo()
 
-First we'll need to define a ContextMenu to attach the views to
+We'll define a new menu as Context Menu to attach the views to
 
-    >>> class Actions(navigation.ContextMenu):
-    ...     grok.name('context-menu')
+    >>> class Actions(navigation.Menu):
+    ...     grok.name('actions')
     >>> grok_component('actions', Actions)
     True
     
@@ -207,12 +206,7 @@ Now let's define some views and attach them to the menu
     >>> grok_component('fooedit', FooEdit)
     True
     
-A ContextMenu is a menu, so it's a viewletmanager:
-
-    >>> IViewletManager.implementedBy(Actions)
-    True
-
-So it can be rendered whenever we want it:
+Let's render it on the site:
 
     >>> actions = Actions(site, request, grok.View(site, request))
     >>> actions.update()
@@ -251,8 +245,8 @@ No problem: use the submenu directive on the main menu:
 
     >>> class Navigation(navigation.Menu):
     ...     grok.name('navigation')
-    ...     navigation.globalmenuitem('http://grok.zope.org', 'Grok!')
-    ...     navigation.submenu('context-menu', 'Actions')
+    ...     navigation.globalmenuitem('http://grok.zope.org', 'Grok!', order=10)
+    ...     navigation.submenu('actions', 'Actions', order=2)
     >>> grok_component('nav', Navigation)
     True
     >>> class Index(grok.View):
@@ -269,6 +263,11 @@ No problem: use the submenu directive on the main menu:
     >>> print nav.render()
     <ul class="">
     <li class="">
+    <a href="http://127.0.0.1/site/index"><img
+        src="/@@/icons/home.png" />Home</a>
+    <BLANKLINE>
+    </li>
+    <li class="">
     <a>Actions</a>
     <ul class="">
     <li class="">
@@ -283,11 +282,6 @@ No problem: use the submenu directive on the main menu:
     </li>
     <li class="">
     <a href="http://grok.zope.org">Grok!</a>
-    <BLANKLINE>
-    </li>
-    <li class="">
-    <a href="http://127.0.0.1/site/index"><img
-        src="/@@/icons/home.png" />Home</a>
     <BLANKLINE>
     </li>
     </ul>
@@ -343,6 +337,46 @@ Now use a more powerful user:
     </li>
     </ul>
 
+You can link a view to multiple menus by repeating the menuitem directive
+
+    >>> class FooAdd(grok.View):
+    ...     grok.context(MySite)
+    ...     navigation.menuitem(Actions, 'Add a Foo', order=3)
+    ...     navigation.menuitem(Navigation, 'Add a Foo', order=5)
+    ...     def render(self):
+    ...         return 'test'
+    >>> grok_component('fooadd', FooAdd)
+    True
+
+    >>> nav = Navigation(site, request, grok.View(site, request))
+    >>> nav.update()
+    >>> print nav.render()
+    <ul class="">
+    <li class="">
+    <a href="http://127.0.0.1/site/index"><img
+        src="/@@/icons/home.png" />Home</a>
+    <BLANKLINE>
+    </li>
+    <li class="">
+    <a>Actions</a>
+    <ul class="">
+    <li class="">
+    <a href="http://127.0.0.1/site/fooadd">Add a Foo</a>
+    <BLANKLINE>
+    </li>
+    </ul>
+    </li>
+    <li class="">
+    <a href="http://127.0.0.1/site/fooadd">Add a Foo</a>
+    <BLANKLINE>
+    </li>
+    <li class="">
+    <a href="http://grok.zope.org">Grok!</a>
+    <BLANKLINE>
+    </li>
+    </ul>
+
+
 Content Menus
 -------------
 
@@ -376,7 +410,7 @@ getContent() method. If you don't you'll get a NotImplementedError:
     NotImplementedError: Subclasses of ContentMenu must override getContent()
 
 So let's define the getContent() method, and also a getTitle() method to return 
-something else the __name__ attribute. You can override the view to be rendered
+something else than the __name__ attribute. You can override the view to be rendered
 with the viewName attribute, which defaults to 'index'
 
     >>> class ProductMenu(navigation.ContentMenu):
@@ -401,9 +435,9 @@ with the viewName attribute, which defaults to 'index'
     </li>
     </ul>
     
-What just happened here? The items of the menu were rendered as ContextMenu items, 
+What just happened here? The items of the menu were rendered as Context Menu Items, 
 with the context not the current view context, but the item to be rendered.
-Why this is done like that wil become clear when submenus are thrown into the mix.
+Why this is done like that will become clear when content submenus are thrown into the mix.
 Let's define Series and Models for our Products:
 
     >>> class ISeries(Interface):

@@ -1,2 +1,2 @@
-from components import (Menu, MenuItem, SiteMenuItem, ContextMenu, ContextMenuItem, ContentMenu, ContentSubMenu,   
+from components import (Menu, MenuItem, SiteMenuItem, ContextMenuItem, ContentMenu, ContentSubMenu,   
                         menuitem, sitemenuitem, submenu, globalmenuitem, contentsubmenu)

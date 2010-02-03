@@ -91,8 +91,8 @@ class MenuViewGrokker(ViewGrokker):
     _dynamic_items = 0
     martian.priority(-1)
     martian.component(View)
-    martian.directive(menuitem, name='menu')
-    martian.directive(sitemenuitem, name='sitemenu')
+    martian.directive(menuitem, name='menus', default={})
+    martian.directive(sitemenuitem, name='sitemenus', default={})
     martian.directive(grokcore.viewlet.context)
     martian.directive(grokcore.viewlet.layer, default=IDefaultBrowserLayer)
     martian.directive(grokcore.viewlet.require, name='permission')
@@ -100,16 +100,15 @@ class MenuViewGrokker(ViewGrokker):
     martian.directive(grokcore.component.title, name='viewtitle')
     martian.directive(grokcore.component.description)
     
-    def execute(self, factory, config, menu, sitemenu, context, layer
+    def execute(self, factory, config, menus, sitemenus, context, layer
                 , name, viewtitle, permission, description, **kw):
-        if sitemenu is not None:
-            sitemenu, title, order, icon = sitemenu
+        for sitemenu, (title, order, icon) in sitemenus.items():
             title = title or viewtitle or name 
             if martian.util.check_subclass(permission, grokcore.security.Permission):
                 permission =  grokcore.component.name.bind().get(permission)
             item_name = 'AutoSiteMenuItem_%i'%MenuViewGrokker._dynamic_items
             config.action(discriminator=('viewlet', None, layer,
-                             IBrowserView, factory, item_name),
+                             IBrowserView, sitemenu, item_name),
                              callable=registerMenuItem,
                              args=(factory.module_info, SiteMenuItem, (None, layer, IBrowserView, sitemenu)
                                    , item_name, permission, 
@@ -122,14 +121,13 @@ class MenuViewGrokker(ViewGrokker):
                                     )
                              )
             MenuViewGrokker._dynamic_items+=1
-        if menu is not None:
-            menu, title, order, icon = menu
+        for menu, (title, order, icon) in menus.items():
             title = title or viewtitle or name
             if martian.util.check_subclass(permission, grokcore.security.Permission):
                 permission =  grokcore.component.name.bind().get(permission)
             item_name = 'AutoContextMenuItem_%i'%MenuViewGrokker._dynamic_items
             config.action(discriminator=('viewlet', Interface, layer,
-                             IBrowserView, factory, item_name),
+                             IBrowserView, menu, item_name),
                              callable=registerMenuItem,
                              args=(factory.module_info, ContextMenuItem, (context, layer, IBrowserView, menu)
                                    , item_name, permission, 

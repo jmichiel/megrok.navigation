@@ -1,3 +1,9 @@
+0.2 (2010-02-03)
+----------------
+
+- Allow views to be registered to multiple menus
+- Scrap ContextMenu class as it's nothing more than a regular Menu anyway
+
 0.1 (2010-01-29)
 ----------------
 
