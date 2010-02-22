@@ -1,3 +1,8 @@
+0.2.1 (2010-02-22)
+----------------
+
+- Fix issue with requiring zope.site to make it work on Grok 1.0
+
 0.2 (2010-02-03)
 ----------------
 

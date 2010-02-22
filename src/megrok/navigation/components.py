@@ -12,7 +12,12 @@ from zope.interface import Interface, implements
 from zope.component import queryMultiAdapter
 from zope.pagetemplate.interfaces import IPageTemplate
 from zope import schema
-from zope.site.hooks import getSite
+
+try: 
+    from zope.site.hooks import getSite 
+except ImportError: 
+    # BBB stay compatible with Grok 1.0 
+    from zope.app.component.hooks import getSite 
 
 from interfaces import IMenu, IMenuItem
 
