@@ -532,19 +532,20 @@ Page Templates
 megrok.navigation uses zope.pagetemplate (or megrok.pagetemplate) to allow you to override the default templates.
 Let's define a template based on divs, instead of ul
 
-    >>> menutemplate = """<div tal:attributes='class viewletmanager/cssClass'>
+    >>> mt = """<div tal:attributes='class viewletmanager/cssClass'>
     ... <tal:repeat tal:repeat='viewlet viewletmanager/viewlets'
     ...             tal:replace='structure viewlet/render'/>
     ... </div>"""
     >>> from megrok import pagetemplate
     >>> class DivMenu(pagetemplate.PageTemplate):
-    ...     template = grok.PageTemplate(menutemplate)
+    ...     template = grok.PageTemplate(mt)
     ...     pagetemplate.view(navigation.interfaces.IMenu)
     >>> grok_component('divmenu', DivMenu)
     True
 
-    >>> itemtemplate = """<div tal:attributes='class viewletmanager/cssItemClass'>
-    ... <a tal:attributes="href viewlet/link; title viewlet/description|nothing">
+    >>> it = """<div tal:attributes='class viewletmanager/cssItemClass'>
+    ... <a tal:attributes="href viewlet/link; 
+    ...                    title viewlet/description|nothing">
     ... <img tal:condition="viewlet/icon | nothing" 
     ...      tal:attributes="src viewlet/icon"/>
     ... <span tal:replace="viewlet/title"/></a>
@@ -552,7 +553,7 @@ Let's define a template based on divs, instead of ul
     ...              tal:replace="structure provider:${viewlet/subMenu}"/>
     ... </div>"""
     >>> class DivMenuItem(pagetemplate.PageTemplate):
-    ...     template = grok.PageTemplate(itemtemplate)
+    ...     template = grok.PageTemplate(it)
     ...     pagetemplate.view(navigation.interfaces.IMenuItem)
     >>> grok_component('divmenuitem', DivMenuItem)
     True
