@@ -14,10 +14,15 @@ from zope.pagetemplate.interfaces import IPageTemplate
 from zope import schema
 
 try: 
-    from zope.site.hooks import getSite 
-except ImportError: 
+    from zope.site.hooks import getSite
+except ImportError:
+    pass 
+
+try: 
     # BBB stay compatible with Grok 1.0 
-    from zope.app.component.hooks import getSite 
+    from zope.app.component.hooks  import getSite
+except ImportError:
+    pass 
 
 from interfaces import IMenu, IMenuItem
 
