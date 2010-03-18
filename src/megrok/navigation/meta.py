@@ -18,7 +18,7 @@ from grokcore.view import View
 from grokcore.view.meta.views import default_view_name
 
 from components import Menu, MenuItem, SiteMenuItem, ContextMenuItem, ContentMenu, ContentMenuItems, ContentMenuItem
-from components import submenu, menuitem, sitemenuitem, globalmenuitem, contentsubmenu
+from directives import submenu, menuitem, sitemenuitem, globalmenuitem, contentsubmenu, itemsimplement
 
 from util import registerMenuItem, createClass
 
@@ -30,15 +30,16 @@ class MenuGrokker(ViewletManagerGrokker):
     martian.directive(submenu, name='submenus', default={})
     martian.directive(globalmenuitem, name='globalitems', default={})
     martian.directive(grokcore.viewlet.require, name='permission')
+    martian.directive(itemsimplement)
 
-    def execute(self, factory, config, layer, name, submenus, globalitems, permission, **kw):
+    def execute(self, factory, config, layer, name, submenus, globalitems, permission, itemsimplement, **kw):
         for submenu, (title, order) in submenus.items():
             item_name = 'AutoMenuItem_%i'%MenuGrokker._dynamic_items
             config.action(discriminator=('viewlet', None, layer,
                              IBrowserView, factory, item_name),
                              callable=registerMenuItem,
                              args=(factory.module_info, MenuItem, (None, layer, IBrowserView, factory)
-                                   , item_name, permission, 
+                                   , item_name, permission, itemsimplement,
                                    {'title':title or submenu,
                                     'subMenu': submenu},
                                     (order, MenuGrokker._dynamic_items)
@@ -50,7 +51,7 @@ class MenuGrokker(ViewletManagerGrokker):
                              IBrowserView, factory, item_name),
                              callable=registerMenuItem,
                              args=(factory.module_info, MenuItem, (None, layer, IBrowserView, factory)
-                                   , item_name, permission, 
+                                   , item_name, permission, itemsimplement,
                                    {'title':title or submenu,
                                     'link': link,
                                     'icon': icon,
@@ -66,15 +67,16 @@ class ContentMenuGrokker(ViewletManagerGrokker):
     martian.directive(contentsubmenu, default=(None, 0))
     martian.directive(grokcore.viewlet.layer, default=IDefaultBrowserLayer)
     martian.directive(grokcore.viewlet.require, name='permission')
+    martian.directive(itemsimplement)
 
-    def execute(self, factory, config, contentsubmenu, layer, permission, **kw):
+    def execute(self, factory, config, contentsubmenu, layer, permission, itemsimplement, **kw):
         submenu, order= contentsubmenu
         item_name = 'ContentMenuItems_%i'%ContentMenuGrokker._dynamic_items
         config.action(discriminator=('viewlet', None, layer,
                          IBrowserView, factory, item_name),
                          callable=registerMenuItem,
                          args=(factory.module_info, ContentMenuItems, (None, layer, IBrowserView, factory)
-                               , item_name, permission, 
+                               , item_name, permission, itemsimplement, 
                                {'_item_class' : createClass(factory.module_info, 
                                                             ContentMenuItem, 
                                                             item_name+'_item',  
@@ -102,6 +104,7 @@ class MenuViewGrokker(ViewGrokker):
     
     def execute(self, factory, config, menus, sitemenus, context, layer
                 , name, viewtitle, permission, description, **kw):
+        intemitf = itemsimplement.bind().get(factory)
         for sitemenu, (title, order, icon) in sitemenus.items():
             title = title or viewtitle or name 
             if martian.util.check_subclass(permission, grokcore.security.Permission):
@@ -111,7 +114,7 @@ class MenuViewGrokker(ViewGrokker):
                              IBrowserView, sitemenu, item_name),
                              callable=registerMenuItem,
                              args=(factory.module_info, SiteMenuItem, (None, layer, IBrowserView, sitemenu)
-                                   , item_name, permission, 
+                                   , item_name, permission, intemitf, 
                                    {'title':title,
                                     'viewName':name,
                                     'description':description,
@@ -130,7 +133,7 @@ class MenuViewGrokker(ViewGrokker):
                              IBrowserView, menu, item_name),
                              callable=registerMenuItem,
                              args=(factory.module_info, ContextMenuItem, (context, layer, IBrowserView, menu)
-                                   , item_name, permission, 
+                                   , item_name, permission, intemitf,
                                    {'title':title,
                                     'viewName':name, 
                                     'description':description,

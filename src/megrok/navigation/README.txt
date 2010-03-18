@@ -412,6 +412,7 @@ getContent() method. If you don't you'll get a NotImplementedError:
 So let's define the getContent() method, and also a getTitle() method to return 
 something else than the __name__ attribute. You can override the view to be rendered
 with the viewName attribute, which defaults to 'index'
+There is also a getURL() method that you can override to create a link yourself.
 
     >>> class ProductMenu(navigation.ContentMenu):
     ...     grok.name('products')
@@ -580,3 +581,31 @@ Let's define a template based on divs, instead of ul
     </div>
     </div>
     
+    
+But what if you want 2 different templates for items to be used in different menus? You never specify any Items
+yourself, so you can't tell them to implement a different interface and register the template to that interface.
+To allow this, the :func:`itemsimplement` directive was introduced.
+
+    >>> class IIconItem(navigation.interfaces.IMenuItem):
+    ...     pass
+    >>> class IconMenu(navigation.Menu):
+    ...     grok.name('icons')
+    ...     navigation.itemsimplement(IIconItem)
+    ...     navigation.globalmenuitem('http://grok.zope.org', 'Grok!', icon='icon.jpg')
+    >>> grok_component('nav', IconMenu)
+    True
+  
+    >>> it = """<img tal:condition="viewlet/icon | nothing" 
+    ...      tal:attributes="src viewlet/icon"/>"""
+    >>> class IconMenuItem(pagetemplate.PageTemplate):
+    ...     template = grok.PageTemplate(it)
+    ...     pagetemplate.view(IIconItem)
+    >>> grok_component('iconmenuitem', IconMenuItem)
+    True
+    >>> icons = IconMenu(site, request, grok.View(site, request))
+    >>> icons.update()
+    >>> print icons.render()
+    <div class="">
+    <img src="icon.jpg" />
+    </div>
+  

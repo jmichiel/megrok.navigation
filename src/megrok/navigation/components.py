@@ -6,7 +6,6 @@ Created on 13-jan-2010
 
 
 import grokcore.viewlet, grokcore.component, grokcore.view
-import martian
 
 from zope.interface import Interface, implements
 from zope.component import queryMultiAdapter
@@ -63,44 +62,6 @@ class MenuItem(BaseMenuOrItem, grokcore.viewlet.Viewlet):
     submenu = schema.fieldproperty.FieldProperty(IMenuItem['submenu'])
 
 
-class submenu(martian.Directive):
-    scope = martian.CLASS
-    store = martian.DICT
-    
-    def factory(self, submenu, title=None, order=0):
-        if IMenu.implementedBy(submenu):
-            submenu = grokcore.component.name.bind().get(submenu)
-        if martian.util.not_unicode_or_ascii(submenu):
-            raise martian.error.GrokImportError(
-                "You can only pass a class "
-                "implementing megrok.navigation.interfaces.IMenu "
-                "to the '%s' directive." % self.name)
-        return submenu, (title, order)
-        
-class menuitem(martian.Directive):
-    scope = martian.CLASS
-    store = martian.DICT
-    
-    def factory(self, menu, title=None, order=0, icon=None):
-        if not IMenu.implementedBy(menu):
-            raise martian.error.GrokImportError(
-                "You can only pass a class implementing "
-                "megrok.navigation.interfaces.IMenu "
-                "to the '%s' directive." % self.name)
-        return menu, (title, order, icon)
-    
-class sitemenuitem(menuitem):
-    pass
-
-
-class globalmenuitem(martian.Directive):
-    scope = martian.CLASS
-    store = martian.DICT
-    
-    def factory(self, link='', title=None, order=0, icon=None):
-        return link, (title, order, icon)
-
-
 class SiteMenuItem(MenuItem):
     grokcore.component.baseclass()
 
@@ -114,23 +75,11 @@ class ContextMenuItem(MenuItem):
 
     @property
     def link(self):
-        url = self.view.url(self.context, self.viewName)
-        return url
+        try:
+            return self.view.url(self.context, self.viewName)
+        except TypeError:
+            return None
 
-
-
-class contentsubmenu(submenu):
-    store = martian.ONCE
-    
-    def factory(self, submenu, order=0):
-        if IMenu.implementedBy(submenu):
-            submenu = grokcore.component.name.bind().get(submenu)
-        if martian.util.not_unicode_or_ascii(submenu):
-            raise martian.error.GrokImportError(
-                "You can only pass a class "
-                "implementing megrok.navigation.interfaces.IMenu "
-                "to the '%s' directive." % self.name)
-        return submenu, order
 
 
 class ContentMenu(Menu):
@@ -143,6 +92,13 @@ class ContentMenu(Menu):
     
     def getTitle(self, obj):
         return obj.__name__
+    
+    def getURL(self, obj):
+        try:
+            return self.view.url(obj, self.viewName)
+        except TypeError:
+            return None
+        
 
     
 class ContentSubMenu(ContentMenu):
@@ -161,10 +117,13 @@ class ContentMenuItems(MenuItem):
     def render(self):
         return u'\n'.join([item.render() for item in self.menuitems])
             
-class ContentMenuItem(ContextMenuItem):
+class ContentMenuItem(MenuItem):
     grokcore.component.baseclass()
     
     @property
     def title(self):
         return self.viewletmanager.getTitle(self.context)
         
+    @property
+    def link(self):
+        return self.viewletmanager.getURL(self.context)

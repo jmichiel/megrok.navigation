@@ -5,6 +5,7 @@ Created on 28-jan-2010
 '''
 import grokcore.viewlet
 from zope import component
+from zope.interface import classImplements
 from zope.viewlet.interfaces import IViewlet
 
 
@@ -19,8 +20,10 @@ def createClass(module_info, base, name, attributes={}):
     return type(name, bases, attrs)
 
 
-def registerMenuItem(module_info, base, adapts, name, permission, attributes={}, order=(0,0)):
+def registerMenuItem(module_info, base, adapts, name, permission, itemsimplement, attributes={}, order=(0,0)):
     class_ = createClass(module_info, base, name, attributes)
+    if itemsimplement is not None:
+        classImplements(class_, itemsimplement)
     grokcore.viewlet.order.set(class_, order)
     component.provideAdapter(class_, adapts, IViewlet, name)
     grokcore.viewlet.util.make_checker(class_, class_, permission, ['update', 'render'])

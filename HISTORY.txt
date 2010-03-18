@@ -1,4 +1,11 @@
-0.2.2 (2010-02-22)
+0.3 (2010-03-xx)
+----------------
+
+- separate directives in directives submodule
+- getURL method for ContentMenus
+- itemsimplement directive
+
+0.2.2 (2010-03-09)
 ------------------
 
 - Fix getSite import issue
