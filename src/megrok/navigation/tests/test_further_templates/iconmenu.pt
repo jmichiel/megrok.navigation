@@ -1,0 +1,6 @@
+<div tal:attributes="id viewletmanager/id|default;class viewletmanager/cssClass"
+        tal:define="viewlets viewletmanager/viewlets"
+        tal:condition="viewlets">
+        <tal:repeat tal:repeat='viewlet viewlets'
+             tal:replace='structure viewlet/render'/>
+</div>

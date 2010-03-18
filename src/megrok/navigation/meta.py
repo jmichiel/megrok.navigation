@@ -104,17 +104,17 @@ class MenuViewGrokker(ViewGrokker):
     
     def execute(self, factory, config, menus, sitemenus, context, layer
                 , name, viewtitle, permission, description, **kw):
-        intemitf = itemsimplement.bind().get(factory)
         for sitemenu, (title, order, icon) in sitemenus.items():
             title = title or viewtitle or name 
             if martian.util.check_subclass(permission, grokcore.security.Permission):
                 permission =  grokcore.component.name.bind().get(permission)
             item_name = 'AutoSiteMenuItem_%i'%MenuViewGrokker._dynamic_items
+            item_itf = itemsimplement.bind().get(sitemenu)
             config.action(discriminator=('viewlet', None, layer,
                              IBrowserView, sitemenu, item_name),
                              callable=registerMenuItem,
                              args=(factory.module_info, SiteMenuItem, (None, layer, IBrowserView, sitemenu)
-                                   , item_name, permission, intemitf, 
+                                   , item_name, permission, item_itf, 
                                    {'title':title,
                                     'viewName':name,
                                     'description':description,
@@ -129,11 +129,12 @@ class MenuViewGrokker(ViewGrokker):
             if martian.util.check_subclass(permission, grokcore.security.Permission):
                 permission =  grokcore.component.name.bind().get(permission)
             item_name = 'AutoContextMenuItem_%i'%MenuViewGrokker._dynamic_items
+            item_itf = itemsimplement.bind().get(menu)
             config.action(discriminator=('viewlet', Interface, layer,
                              IBrowserView, menu, item_name),
                              callable=registerMenuItem,
                              args=(factory.module_info, ContextMenuItem, (context, layer, IBrowserView, menu)
-                                   , item_name, permission, intemitf,
+                                   , item_name, permission, item_itf,
                                    {'title':title,
                                     'viewName':name, 
                                     'description':description,

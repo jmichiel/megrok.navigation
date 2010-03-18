@@ -120,11 +120,11 @@ Let's see what that gives us now:
     >>> print nav.render()
     <ul class="menu">
     <li class="menu-item">
-    <a href="http://127.0.0.1/site/index">Home</a>
+    <a href="http://grok.zope.org">Grok!</a>
     <BLANKLINE>
     </li>
     <li class="menu-item">
-    <a href="http://grok.zope.org">Grok!</a>
+    <a href="http://127.0.0.1/site/index">Home</a>
     <BLANKLINE>
     </li>
     </ul>
