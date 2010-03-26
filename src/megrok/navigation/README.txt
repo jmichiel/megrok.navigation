@@ -110,10 +110,11 @@ Site menu items have links to views of the site itself,
 and are meant to be displayed for each view the menu is rendered in.
 A good example is a 'Home' link to your site root.
 Site Menu items are defined on the view that is to be linked to
+I want to be sure that my Home link is the first.
 
     >>> class Index(grok.View):
     ...     grok.context(MySite)
-    ...     navigation.sitemenuitem(INavigation, 'Home')
+    ...     navigation.sitemenuitem(INavigation, 'Home', order=-1)
     ...     def render(self):
     ...         return 'test'
     >>> grok_component('index', Index)
@@ -127,39 +128,14 @@ Let's see what that gives us now:
     >>> print nav.render()
     <ul class="menu">
     <li class="menu-item">
-    <a href="http://grok.zope.org">Grok!</a>
+    <a href="http://127.0.0.1/site/index">Home</a>
     <BLANKLINE>
     </li>
     <li class="menu-item">
-    <a href="http://127.0.0.1/site/index">Home</a>
-    <BLANKLINE>
-    </li>
-    </ul>
-
-Nice, but I want my be sure that my Home link is the first!
-No problem, use the 'order' attribute in the directives to solve that
-
-    >>> class Navigation(navigation.Menu):
-    ...     grok.name('navigation')
-    ...     grok.implements(INavigation)
-    ...     navigation.globalmenuitem('http://grok.zope.org', 'Grok!', order=10)
-    >>> grok_component('nav', Navigation)
-    True
-
-    >>> nav = Navigation(site, request, grok.View(site, request))
-    >>> nav.update()
-    >>> print nav.render()
-    <ul class="">
-    <li class="">
-    <a href="http://127.0.0.1/site/index">Home</a>
-    <BLANKLINE>
-    </li>
-    <li class="">
     <a href="http://grok.zope.org">Grok!</a>
     <BLANKLINE>
     </li>
     </ul>
-
 
 Contextual Menu Items
 ---------------------

@@ -36,9 +36,10 @@ class MenuGrokker(ViewletManagerGrokker):
     martian.directive(directives.globalmenuitem, name='globalitems', default={})
     martian.directive(grokcore.viewlet.require, name='permission')
     martian.directive(directives.itemsimplement)
+    martian.directive(directives.contentorder)
 
     def execute(self, factory, config, layer, name, viewtitle, submenus, contentsubmenu, 
-                parentmenus, globalitems, permission, itemsimplement, **kw):
+                parentmenus, globalitems, permission, itemsimplement, contentorder, **kw):
         for submenu, (title, order) in submenus.items():
             item_name = 'AutoMenuItem_%i'%MenuGrokker._dynamic_items
             config.action(discriminator=('viewlet', None, layer,
@@ -78,7 +79,7 @@ class MenuGrokker(ViewletManagerGrokker):
                              args=(factory.module_info, components.ContentMenuItems, (None, layer, IBrowserView, factory)
                                    , item_name, permission, None, 
                                    {},
-                                   (order, MenuGrokker._dynamic_items)
+                                   contentorder
                                    ))
             MenuGrokker._dynamic_items+=1
             if contentsubmenu is not None:

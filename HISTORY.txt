@@ -1,4 +1,4 @@
-0.3 (2010-03-xx)
+0.3 (2010-03-26)
 ----------------
 
 - separate directives in directives submodule
@@ -9,6 +9,7 @@
 - 'menu' attribute for MenuItem which refers to the viewletmanager 
 - 'items' attribute for Menu which refers to the viewlets
 - removed submenu/subMenu inconsistency (may break overriden templates!)
+- contentorder directive
 
 0.2.2 (2010-03-09)
 ------------------
