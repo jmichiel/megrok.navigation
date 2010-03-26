@@ -26,7 +26,8 @@ class menuitem(martian.Directive):
     store = martian.DICT
     
     def factory(self, menu, title=None, order=0, icon=None):
-        if not IMenu.implementedBy(menu):
+        martian.validateInterfaceOrClass(self, menu)
+        if not (issubclass(menu, IMenu) or IMenu.implementedBy(menu)):
             raise martian.error.GrokImportError(
                 "You can only pass a class implementing "
                 "megrok.navigation.interfaces.IMenu "
@@ -64,3 +65,6 @@ class itemsimplement(martian.Directive):
     store = martian.ONCE
     validate = martian.validateInterface
     
+
+class parentmenu(menuitem):
+    pass

@@ -4,6 +4,11 @@
 - separate directives in directives submodule
 - getURL method for ContentMenus
 - itemsimplement directive
+- parenmenu directive
+- 'menu' and 'item' template namespace entries
+- 'menu' attribute for MenuItem which refers to the viewletmanager 
+- 'items' attribute for Menu which refers to the viewlets
+- removed submenu/subMenu inconsistency (may break overriden templates!)
 
 0.2.2 (2010-03-09)
 ------------------

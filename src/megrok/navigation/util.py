@@ -9,7 +9,7 @@ from zope.interface import classImplements
 from zope.viewlet.interfaces import IViewlet
 
 
-def createClass(module_info, base, name, attributes={}):
+def createClass(module_info, base, name, implements, attributes):
     bases = (base, )
 
     attrs = {'__view_name__': name,
@@ -17,15 +17,17 @@ def createClass(module_info, base, name, attributes={}):
     if attributes:
         attrs.update(attributes)
 
-    return type(name, bases, attrs)
+    klass = type(name, bases, attrs)
+    if implements is not None:
+        classImplements(klass, implements)
+
+    return klass
 
 
 def registerMenuItem(module_info, base, adapts, name, permission, itemsimplement, attributes={}, order=(0,0)):
-    class_ = createClass(module_info, base, name, attributes)
-    if itemsimplement is not None:
-        classImplements(class_, itemsimplement)
-    grokcore.viewlet.order.set(class_, order)
-    component.provideAdapter(class_, adapts, IViewlet, name)
-    grokcore.viewlet.util.make_checker(class_, class_, permission, ['update', 'render'])
+    klass = createClass(module_info, base, name, itemsimplement, attributes)
+    grokcore.viewlet.order.set(klass, order)
+    component.provideAdapter(klass, adapts, IViewlet, name)
+    grokcore.viewlet.util.make_checker(klass, klass, permission, ['update', 'render'])
 
 

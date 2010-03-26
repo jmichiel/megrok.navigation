@@ -1,4 +1,4 @@
-<li tal:attributes='class viewletmanager/cssItemClass'>
-<a tal:attributes="href viewlet/link; title viewlet/description|nothing"><img tal:condition="viewlet/icon | nothing" tal:attributes="src viewlet/icon"/><span tal:replace="viewlet/title"/></a>
-<tal:replace tal:condition="viewlet/subMenu | nothing" tal:replace="structure provider:${viewlet/subMenu}"/>
+<li tal:attributes='class menu/cssItemClass'>
+<a tal:attributes="href item/link; title item/description|nothing"><img tal:condition="item/icon | nothing" tal:attributes="src item/icon"/><span tal:replace="item/title"/></a>
+<tal:replace tal:condition="item/submenu | nothing" tal:replace="structure provider:${item/submenu}"/>
 </li>

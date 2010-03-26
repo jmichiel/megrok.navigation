@@ -18,10 +18,15 @@ Let's first setup a simple site
     >>> root['site'] = site = MySite()
     
 Let us now define a menu
+We'll first define an Interface, so that later on we won't need to redefine some menus after we redefined 
+the Navigation menu, so this is not necessary to do, although it can lessen dependencies.
 
     >>> from megrok import navigation
+	>>> class INavigation(navigation.interfaces.IMenu):
+	...     pass
     >>> class Navigation(navigation.Menu):
     ...     grok.name('navigation')
+    ...     grok.implements(INavigation)
     >>> grok_component('nav', Navigation)
     True
     
@@ -57,6 +62,7 @@ You define them on the menu you want them to be rendered:
 
     >>> class Navigation(navigation.Menu):
     ...     grok.name('navigation')
+    ...     grok.implements(INavigation)
     ...     navigation.globalmenuitem('http://grok.zope.org', 'Grok!')
     >>> grok_component('nav', Navigation)
     True
@@ -80,6 +86,7 @@ You can set the css classes with the cssClass and cssItemClass attributes:
 
     >>> class Navigation(navigation.Menu):
     ...     grok.name('navigation')
+    ...     grok.implements(INavigation)
     ...     navigation.globalmenuitem('http://grok.zope.org', 'Grok!')
     ...     cssClass='menu'
     ...     cssItemClass='menu-item'
@@ -106,7 +113,7 @@ Site Menu items are defined on the view that is to be linked to
 
     >>> class Index(grok.View):
     ...     grok.context(MySite)
-    ...     navigation.sitemenuitem(Navigation, 'Home')
+    ...     navigation.sitemenuitem(INavigation, 'Home')
     ...     def render(self):
     ...         return 'test'
     >>> grok_component('index', Index)
@@ -130,21 +137,13 @@ Let's see what that gives us now:
     </ul>
 
 Nice, but I want my be sure that my Home link is the first!
-No problem, use the 'order' attribute in the directives to solve that,
-and while where at it, let's define an icon as well
+No problem, use the 'order' attribute in the directives to solve that
 
     >>> class Navigation(navigation.Menu):
     ...     grok.name('navigation')
+    ...     grok.implements(INavigation)
     ...     navigation.globalmenuitem('http://grok.zope.org', 'Grok!', order=10)
     >>> grok_component('nav', Navigation)
-    True
-    >>> class Index(grok.View):
-    ...     grok.context(MySite)
-    ...     navigation.sitemenuitem(Navigation, 'Home', order=0, 
-    ...                             icon='/@@/icons/home.png')
-    ...     def render(self):
-    ...         return 'test'
-    >>> grok_component('index', Index)
     True
 
     >>> nav = Navigation(site, request, grok.View(site, request))
@@ -152,8 +151,7 @@ and while where at it, let's define an icon as well
     >>> print nav.render()
     <ul class="">
     <li class="">
-    <a href="http://127.0.0.1/site/index"><img
-        src="/@@/icons/home.png" />Home</a>
+    <a href="http://127.0.0.1/site/index">Home</a>
     <BLANKLINE>
     </li>
     <li class="">
@@ -163,13 +161,14 @@ and while where at it, let's define an icon as well
     </ul>
 
 
-Context Menus
--------------
+Contextual Menu Items
+---------------------
 
 Context menus are meant to be used to show everything you can do (all views) with the current context.
 In fact all menus are context-sensitive, as a viewletmanager will only display viewlets that are appropriate for
-their current context.
-They are not implemented as IBrowserMenus, but implement the same use case.
+their current context. A Menu Item defined with the :func:`menuitem` directive will inherit its context
+from the view it is defined for. 
+Context menus are not implemented as IBrowserMenus, but implement the same use case.
 We'll first need some context to demonstrate
 
     >>> from zope.interface import Interface
@@ -182,7 +181,10 @@ We'll first need some context to demonstrate
 
 We'll define a new menu as Context Menu to attach the views to
 
+	>>> class IActions(navigation.interfaces.IMenu):
+	...     pass
     >>> class Actions(navigation.Menu):
+    ...     grok.implements(IActions)
     ...     grok.name('actions')
     >>> grok_component('actions', Actions)
     True
@@ -191,7 +193,7 @@ Now let's define some views and attach them to the menu
 
     >>> class FooIndex(grok.View):
     ...     grok.context(IFoo)
-    ...     navigation.menuitem(Actions, 'Details', order=0)
+    ...     navigation.menuitem(IActions, 'Details', order=0)
     ...     def render(self):
     ...         return 'test'
     >>> grok_component('fooindex', FooIndex)
@@ -200,7 +202,7 @@ Now let's define some views and attach them to the menu
     >>> class FooEdit(grok.View):
     ...     grok.context(IFoo)
     ...     grok.title('Edit')
-    ...     navigation.menuitem(Actions, order=1)
+    ...     navigation.menuitem(IActions, order=1)
     ...     def render(self):
     ...         return 'test'
     >>> grok_component('fooedit', FooEdit)
@@ -241,21 +243,14 @@ Note that if you don't specify a title in the menuitem directive, it will use th
 specified with the title directive, if available. Otherwise the view name is used.
 
 Of course, you would now like to have the Actions menu be a part of our global navigation menu.
-No problem: use the submenu directive on the main menu:
+No problem: either use the submenu directive on the main menu:
 
     >>> class Navigation(navigation.Menu):
     ...     grok.name('navigation')
+    ...     grok.implements(INavigation)
     ...     navigation.globalmenuitem('http://grok.zope.org', 'Grok!', order=10)
     ...     navigation.submenu('actions', 'Actions', order=2)
     >>> grok_component('nav', Navigation)
-    True
-    >>> class Index(grok.View):
-    ...     grok.context(MySite)
-    ...     navigation.sitemenuitem(Navigation, 'Home', order=0, 
-    ...                             icon='/@@/icons/home.png')
-    ...     def render(self):
-    ...         return 'test'
-    >>> grok_component('index', Index)
     True
  
     >>> nav = Navigation(foo, request, grok.View(site, request))
@@ -263,8 +258,55 @@ No problem: use the submenu directive on the main menu:
     >>> print nav.render()
     <ul class="">
     <li class="">
-    <a href="http://127.0.0.1/site/index"><img
-        src="/@@/icons/home.png" />Home</a>
+    <a href="http://127.0.0.1/site/index">Home</a>
+    <BLANKLINE>
+    </li>
+    <li class="">
+    <a>Actions</a>
+    <ul class="">
+    <li class="">
+    <a href="http://127.0.0.1/site/foo/fooindex">Details</a>
+    <BLANKLINE>
+    </li>
+    <li class="">
+    <a href="http://127.0.0.1/site/foo/fooedit">Edit</a>
+    <BLANKLINE>
+    </li>
+    </ul>
+    </li>
+    <li class="">
+    <a href="http://grok.zope.org">Grok!</a>
+    <BLANKLINE>
+    </li>
+    </ul>
+
+Or use the parentmenu directive on the submenu:
+
+First reinstate the old Navigation menu definition and the home link
+
+    >>> class Navigation(navigation.Menu):
+    ...     grok.name('navigation')
+    ...     grok.implements(INavigation)
+    ...     navigation.globalmenuitem('http://grok.zope.org', 'Grok!', order=10)
+    >>> grok_component('nav', Navigation)
+    True
+
+Now redefine the Actions menu
+
+    >>> class Actions(navigation.Menu):
+    ...     grok.implements(IActions)
+    ...     grok.name('actions')
+    ...     grok.title('Actions')
+    ...     navigation.parentmenu(INavigation)
+    >>> grok_component('actions', Actions)
+    True
+ 
+    >>> nav = Navigation(foo, request, grok.View(site, request))
+    >>> nav.update()
+    >>> print nav.render()
+    <ul class="">
+    <li class="">
+    <a href="http://127.0.0.1/site/index">Home</a>
     <BLANKLINE>
     </li>
     <li class="">
@@ -292,7 +334,7 @@ Now let's throw in permissions
     ...     grok.context(IFoo)
     ...     grok.title('Manage')
     ...     grok.require('zope.ManageContent')
-    ...     navigation.menuitem(Actions, order=2)
+    ...     navigation.menuitem(IActions, order=2)
     ...     def render(self):
     ...         return 'test'
     >>> grok_component('fooprotected', FooProtected)
@@ -353,8 +395,7 @@ You can link a view to multiple menus by repeating the menuitem directive
     >>> print nav.render()
     <ul class="">
     <li class="">
-    <a href="http://127.0.0.1/site/index"><img
-        src="/@@/icons/home.png" />Home</a>
+    <a href="http://127.0.0.1/site/index">Home</a>
     <BLANKLINE>
     </li>
     <li class="">
@@ -526,6 +567,70 @@ Let's render
     </li>
     </ul>
         
+Or we could have done it like this:
+
+    >>> class ProductMenu(navigation.ContentMenu):
+    ...     grok.name('products')
+    ...     def getContent(self):
+    ...         return [x for x in site.values() if IProduct.providedBy(x)]    
+    ...     def getTitle(self, obj):
+    ...         return obj.name    
+    >>> grok_component('productmenu', ProductMenu)
+    True
+    >>> class SeriesMenu(navigation.ContentSubMenu):
+    ...     navigation.parentmenu(ProductMenu)
+    ...     grok.name('series-menu')
+    ...     def getTitle(self, obj):
+    ...         return obj.name    
+    >>> grok_component('seriesmenu', SeriesMenu)
+    True
+    >>> class ModelMenu(navigation.ContentSubMenu):
+    ...     navigation.parentmenu(SeriesMenu)
+    ...     grok.name('model-menu')
+    ...     def getTitle(self, obj):
+    ...         return obj.name    
+    >>> grok_component('modelmenu', ModelMenu)
+    True
+
+Let's render
+
+    >>> pm = ProductMenu(site, request, grok.View(site, request))
+    >>> pm.update()
+    >>> print pm.render()
+    <ul class="">
+    <li class="">
+    <a href="http://127.0.0.1/site/coffeemachine/index">Coffee Machine</a>
+    <ul class="">
+    </ul>
+    </li>
+    <li class="">
+    <a href="http://127.0.0.1/site/terminator/index">Terminator</a>
+    <ul class="">
+    <li class="">
+    <a href="http://127.0.0.1/site/terminator/1000/index">T-1000</a>
+    <ul class="">
+    </ul>
+    </li>
+    <li class="">
+    <a href="http://127.0.0.1/site/terminator/800/index">T-800</a>
+    <ul class="">
+    <li class="">
+    <a href="http://127.0.0.1/site/terminator/800/101/index">101</a>
+    <BLANKLINE>
+    </li>
+    </ul>
+    </li>
+    <li class="">
+    <a href="http://127.0.0.1/site/terminator/X/index">T-X</a>
+    <ul class="">
+    </ul>
+    </li>
+    </ul>
+    </li>
+    </ul>
+
+
+
         
 Page Templates
 --------------
@@ -550,8 +655,8 @@ Let's define a template based on divs, instead of ul
     ... <img tal:condition="viewlet/icon | nothing" 
     ...      tal:attributes="src viewlet/icon"/>
     ... <span tal:replace="viewlet/title"/></a>
-    ... <tal:replace tal:condition="viewlet/subMenu | nothing" 
-    ...              tal:replace="structure provider:${viewlet/subMenu}"/>
+    ... <tal:replace tal:condition="viewlet/submenu | nothing" 
+    ...              tal:replace="structure provider:${viewlet/submenu}"/>
     ... </div>"""
     >>> class DivMenuItem(pagetemplate.PageTemplate):
     ...     template = grok.PageTemplate(it)

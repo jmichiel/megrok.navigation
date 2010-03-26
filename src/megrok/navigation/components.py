@@ -11,6 +11,9 @@ from zope.interface import Interface, implements
 from zope.component import queryMultiAdapter
 from zope.pagetemplate.interfaces import IPageTemplate
 from zope import schema
+from util import createClass
+from urllib import quote_plus
+import directives
 
 try: 
     from zope.site.hooks import getSite
@@ -49,6 +52,15 @@ class Menu(BaseMenuOrItem, grokcore.viewlet.ViewletManager):
     _default_template = 'menu.pt'
     cssClass=''
     cssItemClass=''
+    
+    @property
+    def items(self):
+        return self.viewlets
+
+    def default_namespace(self):
+        ns = super(Menu, self).default_namespace()
+        ns['menu']= self
+        return ns
 
 
 class MenuItem(BaseMenuOrItem, grokcore.viewlet.Viewlet):
@@ -61,6 +73,15 @@ class MenuItem(BaseMenuOrItem, grokcore.viewlet.Viewlet):
     title = schema.fieldproperty.FieldProperty(IMenuItem['title'])
     submenu = schema.fieldproperty.FieldProperty(IMenuItem['submenu'])
 
+    @property
+    def menu(self):
+        return self.viewletmanager
+
+    def default_namespace(self):
+        ns = super(MenuItem, self).default_namespace()
+        ns['item'] = self
+        ns['menu'] = ns['viewletmanager']
+        return ns
 
 class SiteMenuItem(MenuItem):
     grokcore.component.baseclass()
@@ -85,6 +106,7 @@ class ContextMenuItem(MenuItem):
 class ContentMenu(Menu):
     grokcore.component.baseclass()
     
+    contentsubmenu=None
     viewName='index'
     
     def getContent(self):
@@ -103,16 +125,25 @@ class ContentMenu(Menu):
     
 class ContentSubMenu(ContentMenu):
     grokcore.component.baseclass()
+    
     def getContent(self):
         return self.context.values()
             
 class ContentMenuItems(MenuItem):
     grokcore.component.baseclass()
-    
+        
     def update(self):
-        self.menuitems = [self._item_class(x, self.request, self.view, self.manager) for x in self.manager.getContent()]
-        for i in self.menuitems:
-            i.update() 
+        self.menuitems = []
+        itemsimplement = directives.itemsimplement.bind().get(self.menu) 
+        klass = createClass(self.module_info, 
+                            ContentMenuItem, 
+                            '%s_item' %(self.menu.__class__.__name__),
+                            itemsimplement,
+                            {'submenu':self.menu.contentsubmenu})
+        for x in self.menu.getContent():
+            item = klass(x, self.request, self.view, self.menu)
+            item.update()
+            self.menuitems.append(item) 
     
     def render(self):
         return u'\n'.join([item.render() for item in self.menuitems])
@@ -122,8 +153,8 @@ class ContentMenuItem(MenuItem):
     
     @property
     def title(self):
-        return self.viewletmanager.getTitle(self.context)
+        return self.menu.getTitle(self.context)
         
     @property
     def link(self):
-        return self.viewletmanager.getURL(self.context)
+        return self.menu.getURL(self.context)
