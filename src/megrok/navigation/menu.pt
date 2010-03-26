@@ -1,3 +1,5 @@
-<ul tal:attributes='class menu/cssClass'>
-<tal:repeat tal:repeat='item menu/items' tal:replace='structure item/render'/>
+<div tal:attributes='class menu/cssClass'>
+<ul tal:repeat='group menu/groups'>
+<tal:repeat tal:repeat='item group/items' tal:replace='structure item/render'/>
 </ul>
+</div>

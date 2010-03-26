@@ -25,11 +25,12 @@ Check order in menus using the parentmenu directive
     >>> menu = component.getMultiAdapter((site, request, view), name='testdatamenu')
     >>> menu.update()
     >>> print menu.render()
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a>Sub Menu</a>
-    <ul class="">
-    </ul>  
+    <div class="">
+    </div>
     </li>
     <li class="">
     <a href="http://127.0.0.1/site/index">index</a>
@@ -40,6 +41,7 @@ Check order in menus using the parentmenu directive
     <BLANKLINE>
     </li>
     </ul>  
+    </div>
 '''
 from megrok.navigation.tests import FunctionalLayer
 from zope.testing import doctest

@@ -22,8 +22,8 @@ We'll first define an Interface, so that later on we won't need to redefine some
 the Navigation menu, so this is not necessary to do, although it can lessen dependencies.
 
     >>> from megrok import navigation
-	>>> class INavigation(navigation.interfaces.IMenu):
-	...     pass
+    >>> class INavigation(navigation.interfaces.IMenu):
+    ...     pass
     >>> class Navigation(navigation.Menu):
     ...     grok.name('navigation')
     ...     grok.implements(INavigation)
@@ -50,8 +50,8 @@ Rendering the menu now leaves us with an empty <ul>
     0
     
     >>> print nav.render()
-    <ul class="">
-    </ul>
+    <div class="">
+    </div>
     
     
 Global Menu Items
@@ -75,12 +75,14 @@ Let's see what that gives us now:
     1
     
     >>> print nav.render()
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://grok.zope.org">Grok!</a>
     <BLANKLINE>
     </li>    
     </ul>
+    </div>
 
 You can set the css classes with the cssClass and cssItemClass attributes:
 
@@ -95,12 +97,14 @@ You can set the css classes with the cssClass and cssItemClass attributes:
     >>> nav = Navigation(site, request, grok.View(site, request))
     >>> nav.update()
     >>> print nav.render()
-    <ul class="menu">
+    <div class="menu">
+    <ul>
     <li class="menu-item">
     <a href="http://grok.zope.org">Grok!</a>
     <BLANKLINE>
     </li>    
     </ul>
+    </div>
 
 
 Site Menu Items
@@ -126,7 +130,8 @@ Let's see what that gives us now:
     >>> nav.update()
     
     >>> print nav.render()
-    <ul class="menu">
+    <div class="menu">
+    <ul>
     <li class="menu-item">
     <a href="http://127.0.0.1/site/index">Home</a>
     <BLANKLINE>
@@ -136,13 +141,14 @@ Let's see what that gives us now:
     <BLANKLINE>
     </li>
     </ul>
+    </div>
 
 Contextual Menu Items
 ---------------------
 
 Context menus are meant to be used to show everything you can do (all views) with the current context.
 In fact all menus are context-sensitive, as a viewletmanager will only display viewlets that are appropriate for
-their current context. A Menu Item defined with the :func:`menuitem` directive will inherit its context
+their current context. A Menu Item defined with the menuitem directive will inherit its context
 from the view it is defined for. 
 Context menus are not implemented as IBrowserMenus, but implement the same use case.
 We'll first need some context to demonstrate
@@ -157,8 +163,8 @@ We'll first need some context to demonstrate
 
 We'll define a new menu as Context Menu to attach the views to
 
-	>>> class IActions(navigation.interfaces.IMenu):
-	...     pass
+    >>> class IActions(navigation.interfaces.IMenu):
+    ...     pass
     >>> class Actions(navigation.Menu):
     ...     grok.implements(IActions)
     ...     grok.name('actions')
@@ -188,23 +194,24 @@ Let's render it on the site:
 
     >>> actions = Actions(site, request, grok.View(site, request))
     >>> actions.update()
-    >>> actions.viewlets
+    >>> actions.items
     []
     
     >>> print actions.render()
-    <ul class="">
-    </ul>
+    <div class="">
+    </div>
 
 Since the context was the site, there were no menu items.
 Let's draw it on a IFoo object:
 
     >>> actions = Actions(foo, request, grok.View(foo, request))
     >>> actions.update()
-    >>> len(actions.viewlets)
+    >>> len(actions.items)
     2
     
     >>> print actions.render()
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/foo/fooindex">Details</a>
     <BLANKLINE>
@@ -214,6 +221,7 @@ Let's draw it on a IFoo object:
     <BLANKLINE>
     </li>
     </ul>
+    </div>
     
 Note that if you don't specify a title in the menuitem directive, it will use the name
 specified with the title directive, if available. Otherwise the view name is used.
@@ -232,14 +240,16 @@ No problem: either use the submenu directive on the main menu:
     >>> nav = Navigation(foo, request, grok.View(site, request))
     >>> nav.update()
     >>> print nav.render()
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/index">Home</a>
     <BLANKLINE>
     </li>
     <li class="">
     <a>Actions</a>
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/foo/fooindex">Details</a>
     <BLANKLINE>
@@ -249,12 +259,14 @@ No problem: either use the submenu directive on the main menu:
     <BLANKLINE>
     </li>
     </ul>
+    </div>
     </li>
     <li class="">
     <a href="http://grok.zope.org">Grok!</a>
     <BLANKLINE>
     </li>
     </ul>
+    </div>
 
 Or use the parentmenu directive on the submenu:
 
@@ -280,14 +292,16 @@ Now redefine the Actions menu
     >>> nav = Navigation(foo, request, grok.View(site, request))
     >>> nav.update()
     >>> print nav.render()
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/index">Home</a>
     <BLANKLINE>
     </li>
     <li class="">
     <a>Actions</a>
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/foo/fooindex">Details</a>
     <BLANKLINE>
@@ -297,12 +311,14 @@ Now redefine the Actions menu
     <BLANKLINE>
     </li>
     </ul>
+    </div>
     </li>
     <li class="">
     <a href="http://grok.zope.org">Grok!</a>
     <BLANKLINE>
     </li>
     </ul>
+    </div>
 
 Now let's throw in permissions
 
@@ -320,7 +336,8 @@ We shouldn't see that view
 
     >>> actions.update()
     >>> print actions.render()
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/foo/fooindex">Details</a>
     <BLANKLINE>
@@ -330,6 +347,7 @@ We shouldn't see that view
     <BLANKLINE>
     </li>
     </ul>
+    </div>
 
 Now use a more powerful user:
 
@@ -340,7 +358,8 @@ Now use a more powerful user:
     >>> newInteraction(participation)
     >>> actions.update()
     >>> print actions.render()
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/foo/fooindex">Details</a>
     <BLANKLINE>
@@ -354,6 +373,7 @@ Now use a more powerful user:
     <BLANKLINE>
     </li>
     </ul>
+    </div>
 
 You can link a view to multiple menus by repeating the menuitem directive
 
@@ -369,19 +389,22 @@ You can link a view to multiple menus by repeating the menuitem directive
     >>> nav = Navigation(site, request, grok.View(site, request))
     >>> nav.update()
     >>> print nav.render()
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/index">Home</a>
     <BLANKLINE>
     </li>
     <li class="">
     <a>Actions</a>
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/fooadd">Add a Foo</a>
     <BLANKLINE>
     </li>
     </ul>
+    </div>
     </li>
     <li class="">
     <a href="http://127.0.0.1/site/fooadd">Add a Foo</a>
@@ -392,6 +415,7 @@ You can link a view to multiple menus by repeating the menuitem directive
     <BLANKLINE>
     </li>
     </ul>
+    </div>
 
 
 Content Menus
@@ -442,7 +466,8 @@ There is also a getURL() method that you can override to create a link yourself.
     >>> pm = ProductMenu(foo, request, FooIndex(foo, request))
     >>> pm.update()
     >>> print pm.render()
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/coffeemachine/index">Coffee Machine</a>
     <BLANKLINE>
@@ -452,6 +477,7 @@ There is also a getURL() method that you can override to create a link yourself.
     <BLANKLINE>
     </li>
     </ul>
+    </div>
     
 What just happened here? The items of the menu were rendered as Context Menu Items, 
 with the context not the current view context, but the item to be rendered.
@@ -511,37 +537,52 @@ Let's render
     >>> pm = ProductMenu(site, request, grok.View(site, request))
     >>> pm.update()
     >>> print pm.render()
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/coffeemachine/index">Coffee Machine</a>
-    <ul class="">
+    <div class="">
+    <ul>
+    <BLANKLINE>
     </ul>
+    </div>
     </li>
     <li class="">
     <a href="http://127.0.0.1/site/terminator/index">Terminator</a>
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/terminator/1000/index">T-1000</a>
-    <ul class="">
+    <div class="">
+    <ul>
+    <BLANKLINE>
     </ul>
+    </div>
     </li>
     <li class="">
     <a href="http://127.0.0.1/site/terminator/800/index">T-800</a>
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/terminator/800/101/index">101</a>
     <BLANKLINE>
     </li>
     </ul>
+    </div>
     </li>
     <li class="">
     <a href="http://127.0.0.1/site/terminator/X/index">T-X</a>
-    <ul class="">
+    <div class="">
+    <ul>
+    <BLANKLINE>
     </ul>
+    </div>
     </li>
     </ul>
+    </div>
     </li>
     </ul>
+    </div>
         
 Or we could have done it like this:
 
@@ -573,39 +614,140 @@ Let's render
     >>> pm = ProductMenu(site, request, grok.View(site, request))
     >>> pm.update()
     >>> print pm.render()
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/coffeemachine/index">Coffee Machine</a>
-    <ul class="">
+    <div class="">
+    <ul>
+    <BLANKLINE>
     </ul>
+    </div>
     </li>
     <li class="">
     <a href="http://127.0.0.1/site/terminator/index">Terminator</a>
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/terminator/1000/index">T-1000</a>
-    <ul class="">
+    <div class="">
+    <ul>
+    <BLANKLINE>
     </ul>
+    </div>
     </li>
     <li class="">
     <a href="http://127.0.0.1/site/terminator/800/index">T-800</a>
-    <ul class="">
+    <div class="">
+    <ul>
     <li class="">
     <a href="http://127.0.0.1/site/terminator/800/101/index">101</a>
     <BLANKLINE>
     </li>
     </ul>
+    </div>
     </li>
     <li class="">
     <a href="http://127.0.0.1/site/terminator/X/index">T-X</a>
-    <ul class="">
+    <div class="">
+    <ul>
+    <BLANKLINE>
     </ul>
+    </div>
     </li>
     </ul>
+    </div>
     </li>
     </ul>
+    </div>
 
 
+Groups
+------
+
+Menu Items can be categorized into groups by adding a group parameter to all menuitem, submenu and the patentmenu 
+directives:
+
+    >>> class IGroupedMenu(navigation.interfaces.IMenu):
+    ...     pass
+    >>> class GroupedMenu(navigation.Menu):
+    ...     grok.implements(IGroupedMenu)
+    >>> grok_component('GroupedMenu', GroupedMenu)
+    True
+    >>> class Index(grok.View):
+    ...     grok.context(MySite)
+    ...     navigation.sitemenuitem(IGroupedMenu, 'Home', order=1, group='Group 1')
+    ...     def render(self):
+    ...         return 'test'
+    >>> grok_component('Index', Index)
+    True
+    >>> class View2(grok.View):
+    ...     grok.context(MySite)
+    ...     navigation.sitemenuitem(IGroupedMenu, 'View 2', order=0, group='Group 2')
+    ...     def render(self):
+    ...         return 'test'
+    >>> grok_component('View2', View2)
+    True
+    >>> class View3(grok.View):
+    ...     grok.context(MySite)
+    ...     navigation.sitemenuitem(IGroupedMenu, 'View 3', order=2, group='Group 1')
+    ...     def render(self):
+    ...         return 'test'
+    >>> grok_component('View3', View3)
+    True
+
+The default templates render a separate <ul> for each group:
+
+    >>> gm = GroupedMenu(site, request, grok.View(site, request))
+    >>> gm.update()
+    >>> print gm.render()
+    <div class="">
+    <ul>
+    <li class="">
+    <a href="http://127.0.0.1/site/view2">View 2</a>
+    <BLANKLINE>
+    </li>
+    </ul>
+    <ul>
+    <li class="">
+    <a href="http://127.0.0.1/site/index">Home</a>
+    <BLANKLINE>
+    </li>
+    <li class="">
+    <a href="http://127.0.0.1/site/view3">View 3</a>
+    <BLANKLINE>
+    </li>
+    </ul>
+    </div>
+    
+You can change the order of the groups by setting the grouporder attribute on the Menu class:
+
+    >>> class GroupedMenu(navigation.Menu):
+    ...     grok.implements(IGroupedMenu)
+    ...     grouporder=['Group 1', 'Group 2']
+    >>> grok_component('GroupedMenu', GroupedMenu)
+    True
+    >>> gm = GroupedMenu(site, request, grok.View(site, request))
+    >>> gm.update()
+    >>> print gm.render()
+    <div class="">
+    <ul>
+    <li class="">
+    <a href="http://127.0.0.1/site/index">Home</a>
+    <BLANKLINE>
+    </li>
+    <li class="">
+    <a href="http://127.0.0.1/site/view3">View 3</a>
+    <BLANKLINE>
+    </li>
+    </ul>
+    <ul>
+    <li class="">
+    <a href="http://127.0.0.1/site/view2">View 2</a>
+    <BLANKLINE>
+    </li>
+    </ul>
+    </div>
 
         
 Page Templates
@@ -614,9 +756,11 @@ Page Templates
 megrok.navigation uses zope.pagetemplate (or megrok.pagetemplate) to allow you to override the default templates.
 Let's define a template based on divs, instead of ul
 
-    >>> mt = """<div tal:attributes='class viewletmanager/cssClass'>
-    ... <tal:repeat tal:repeat='viewlet viewletmanager/viewlets'
-    ...             tal:replace='structure viewlet/render'/>
+    >>> mt = """<div tal:attributes='class menu/cssClass'>
+    ... <div tal:repeat='group menu/groups'>
+    ...      <tal:repeat tal:repeat="item group/items"
+    ...                  tal:replace='structure item/render' />
+    ... </div>
     ... </div>"""
     >>> from megrok import pagetemplate
     >>> class DivMenu(pagetemplate.PageTemplate):
@@ -625,14 +769,14 @@ Let's define a template based on divs, instead of ul
     >>> grok_component('divmenu', DivMenu)
     True
 
-    >>> it = """<div tal:attributes='class viewletmanager/cssItemClass'>
-    ... <a tal:attributes="href viewlet/link; 
+    >>> it = """<div tal:attributes='class menu/cssItemClass'>
+    ... <a tal:attributes="href item/link; 
     ...                    title viewlet/description|nothing">
-    ... <img tal:condition="viewlet/icon | nothing" 
-    ...      tal:attributes="src viewlet/icon"/>
-    ... <span tal:replace="viewlet/title"/></a>
-    ... <tal:replace tal:condition="viewlet/submenu | nothing" 
-    ...              tal:replace="structure provider:${viewlet/submenu}"/>
+    ... <img tal:condition="item/icon | nothing" 
+    ...      tal:attributes="src item/icon"/>
+    ... <span tal:replace="item/title"/></a>
+    ... <tal:replace tal:condition="item/submenu | nothing" 
+    ...              tal:replace="structure provider:${item/submenu}"/>
     ... </div>"""
     >>> class DivMenuItem(pagetemplate.PageTemplate):
     ...     template = grok.PageTemplate(it)
@@ -642,6 +786,7 @@ Let's define a template based on divs, instead of ul
 
     >>> print actions.render()
     <div class="">
+    <div>
     <div class="">
     <a href="http://127.0.0.1/site/foo/fooindex">
     <BLANKLINE>
@@ -661,23 +806,25 @@ Let's define a template based on divs, instead of ul
     <BLANKLINE>
     </div>
     </div>
+    </div>
     
     
 But what if you want 2 different templates for items to be used in different menus? You never specify any Items
 yourself, so you can't tell them to implement a different interface and register the template to that interface.
-To allow this, the :func:`itemsimplement` directive was introduced.
+To allow this, the itemsimplement directive was introduced.
 
     >>> class IIconItem(navigation.interfaces.IMenuItem):
     ...     pass
     >>> class IconMenu(navigation.Menu):
     ...     grok.name('icons')
     ...     navigation.itemsimplement(IIconItem)
-    ...     navigation.globalmenuitem('http://grok.zope.org', 'Grok!', icon='icon.jpg')
+    ...     navigation.globalmenuitem('http://grok.zope.org', 'Grok!',
+    ...                               icon='icon.jpg')
     >>> grok_component('nav', IconMenu)
     True
   
-    >>> it = """<img tal:condition="viewlet/icon | nothing" 
-    ...      tal:attributes="src viewlet/icon"/>"""
+    >>> it = """<img tal:condition="item/icon | nothing" 
+    ...      tal:attributes="src item/icon"/>"""
     >>> class IconMenuItem(pagetemplate.PageTemplate):
     ...     template = grok.PageTemplate(it)
     ...     pagetemplate.view(IIconItem)
@@ -687,6 +834,10 @@ To allow this, the :func:`itemsimplement` directive was introduced.
     >>> icons.update()
     >>> print icons.render()
     <div class="">
+    <div>
     <img src="icon.jpg" />
     </div>
-  
+    </div>
+
+
+    

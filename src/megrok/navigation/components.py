@@ -52,6 +52,23 @@ class Menu(BaseMenuOrItem, grokcore.viewlet.ViewletManager):
     _default_template = 'menu.pt'
     cssClass=''
     cssItemClass=''
+    grouporder=[]
+    
+    def update(self):
+        super(Menu, self).update()
+        self._groupItems()
+
+    def _groupItems(self):
+        groups = {}
+        for item in self.items:
+            group = groups.setdefault(item.group, [])
+            group.append(item)
+        self.groups=[]  
+        for group in self.grouporder:
+            items = groups.pop(group, None)
+            if items is not None:
+                self.groups.append({'name':group, 'items':items})
+        self.groups.extend([{'name':group, 'items':items} for group, items in groups.items()])
     
     @property
     def items(self):

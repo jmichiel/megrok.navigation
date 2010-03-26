@@ -1,3 +1,10 @@
+0.4 (2010-03-26)
+----------------
+
+Implemented groups:
+- contentgroup directive
+- grouporder attribute
+
 0.3 (2010-03-26)
 ----------------
 

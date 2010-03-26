@@ -31,16 +31,17 @@ class MenuGrokker(ViewletManagerGrokker):
     martian.directive(grokcore.viewlet.name, get_default=default_view_name)
     martian.directive(grokcore.component.title, name='viewtitle')
     martian.directive(directives.submenu, name='submenus', default={})
-    martian.directive(directives.contentsubmenu, default=(None, 0))
+    martian.directive(directives.contentsubmenu)
     martian.directive(directives.parentmenu, name='parentmenus', default={})
     martian.directive(directives.globalmenuitem, name='globalitems', default={})
     martian.directive(grokcore.viewlet.require, name='permission')
     martian.directive(directives.itemsimplement)
     martian.directive(directives.contentorder)
+    martian.directive(directives.contentgroup)
 
     def execute(self, factory, config, layer, name, viewtitle, submenus, contentsubmenu, 
-                parentmenus, globalitems, permission, itemsimplement, contentorder, **kw):
-        for submenu, (title, order) in submenus.items():
+                parentmenus, globalitems, permission, itemsimplement, contentorder, contentgroup, **kw):
+        for submenu, (title, order, group) in submenus.items():
             item_name = 'AutoMenuItem_%i'%MenuGrokker._dynamic_items
             config.action(discriminator=('viewlet', None, layer,
                              IBrowserView, factory, item_name),
@@ -48,15 +49,16 @@ class MenuGrokker(ViewletManagerGrokker):
                              args=(factory.module_info, components.MenuItem, (None, layer, IBrowserView, factory)
                                    , item_name, permission, itemsimplement,
                                    {'title':title or submenu,
-                                    'submenu': submenu},
+                                    'submenu': submenu,
+                                    'group': group},
                                     (order, MenuGrokker._dynamic_items)
                                     ))
             MenuGrokker._dynamic_items+=1
         if issubclass(factory, components.ContentSubMenu):
-            for parentmenu, (title, order, icon) in parentmenus.items():
+            for parentmenu, (title, order, icon, group) in parentmenus.items():
                 parentmenu.contentsubmenu = name
         else:
-            for parentmenu, (title, order, icon) in parentmenus.items():
+            for parentmenu, (title, order, icon, group) in parentmenus.items():
                 item_name = 'AutoMenuItem_%i'%MenuGrokker._dynamic_items
                 title = title or viewtitle or name 
                 config.action(discriminator=('viewlet', None, layer,
@@ -66,19 +68,21 @@ class MenuGrokker(ViewletManagerGrokker):
                                        , item_name, permission, itemsimplement,
                                        {'title':title,
                                         'icon': icon,
-                                        'submenu': name},
+                                        'submenu': name,
+                                        'group': group},
                                         (order, MenuGrokker._dynamic_items)
                                         ))
                 MenuGrokker._dynamic_items+=1
         if issubclass(factory, components.ContentMenu):
-            contentsubmenu, order= contentsubmenu
+            contentsubmenu, group= contentsubmenu
             item_name = 'ContentMenuItems_%i'%MenuGrokker._dynamic_items
             config.action(discriminator=('viewlet', None, layer,
                              IBrowserView, factory, item_name),
                              callable=registerMenuItem,
                              args=(factory.module_info, components.ContentMenuItems, (None, layer, IBrowserView, factory)
                                    , item_name, permission, None, 
-                                   {},
+                                   {'group': group,
+                                    'group':contentgroup},
                                    contentorder
                                    ))
             MenuGrokker._dynamic_items+=1
@@ -86,7 +90,7 @@ class MenuGrokker(ViewletManagerGrokker):
                 factory.contentsubmenu = contentsubmenu
                 
             
-        for link, (title, order, icon) in globalitems.items():
+        for link, (title, order, icon, group) in globalitems.items():
             item_name = 'AutoMenuItem_%i'%MenuGrokker._dynamic_items
             config.action(discriminator=('viewlet', None, layer,
                              IBrowserView, factory, item_name),
@@ -96,7 +100,8 @@ class MenuGrokker(ViewletManagerGrokker):
                                    {'title':title or submenu,
                                     'link': link,
                                     'icon': icon,
-                                    'submenu': None},
+                                    'submenu': None,
+                                    'group': group},
                                     (order, MenuGrokker._dynamic_items)
                                     ))
             MenuGrokker._dynamic_items+=1
@@ -117,7 +122,7 @@ class MenuViewGrokker(ViewGrokker):
     
     def execute(self, factory, config, menus, sitemenus, context, layer
                 , name, viewtitle, permission, description, **kw):
-        for sitemenu, (title, order, icon) in sitemenus.items():
+        for sitemenu, (title, order, icon, group) in sitemenus.items():
             title = title or viewtitle or name 
             if martian.util.check_subclass(permission, grokcore.security.Permission):
                 permission =  grokcore.component.name.bind().get(permission)
@@ -131,13 +136,14 @@ class MenuViewGrokker(ViewGrokker):
                                    {'title':title,
                                     'viewName':name,
                                     'description':description,
-                                    'icon':icon
+                                    'icon':icon,
+                                    'group': group
                                     },
                                     (order, MenuViewGrokker._dynamic_items)
                                     )
                              )
             MenuViewGrokker._dynamic_items+=1
-        for menu, (title, order, icon) in menus.items():
+        for menu, (title, order, icon, group) in menus.items():
             title = title or viewtitle or name
             if martian.util.check_subclass(permission, grokcore.security.Permission):
                 permission =  grokcore.component.name.bind().get(permission)
@@ -151,7 +157,8 @@ class MenuViewGrokker(ViewGrokker):
                                    {'title':title,
                                     'viewName':name, 
                                     'description':description,
-                                    'icon':icon
+                                    'icon':icon,
+                                    'group': group
                                     },
                                     (order, MenuViewGrokker._dynamic_items)
                                     )
