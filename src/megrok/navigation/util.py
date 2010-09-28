@@ -24,9 +24,10 @@ def createClass(module_info, base, name, implements, attributes):
     return klass
 
 
-def registerMenuItem(module_info, base, adapts, name, permission, itemsimplement, attributes={}, order=(0,0)):
+def registerMenuItem(module_info, base, adapts, name, permission, itemsimplement, layer, attributes={}, order=(0,0)):
     klass = createClass(module_info, base, name, itemsimplement, attributes)
     grokcore.viewlet.order.set(klass, order)
+    grokcore.viewlet.layer.set(klass, layer)
     component.provideAdapter(klass, adapts, IViewlet, name)
     grokcore.viewlet.util.make_checker(klass, klass, permission, ['update', 'render'])
 

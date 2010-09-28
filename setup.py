@@ -21,7 +21,8 @@ tests_require = install_requires + [
     'zope.testing',
     'zope.testbrowser',
     'zope.contentprovider',
-    'megrok.pagetemplate'
+    'megrok.pagetemplate',
+    'zope.app.testing'
     ]
 
 setup(

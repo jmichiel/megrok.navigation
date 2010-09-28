@@ -48,7 +48,16 @@ Rendering the menu now leaves us with an empty <ul>
     >>> nav.update()
     >>> len(nav.viewlets)
     0
-    
+
+We can also get the Menu with the help of the Component Architecture::
+
+    >>> from zope.component import getMultiAdapter
+    >>> from zope.viewlet.interfaces import IContentProvider
+    >>> component_nav = getMultiAdapter((site, request, grok.View(site, request)), 
+    ...     IContentProvider, name="navigation")
+    >>> component_nav
+    <megrok.navigation.tests.Navigation object at 0...>
+
     >>> print nav.render()
     <div class="">
     </div>
@@ -840,4 +849,62 @@ To allow this, the itemsimplement directive was introduced.
     </div>
 
 
-    
+Register plain viewlets and *.items together.
+
+
+    >>> from zope.publisher.interfaces.browser import IDefaultBrowserLayer
+    >>> class IGlobalMenu(navigation.interfaces.IMenu):
+    ...     pass
+
+    >>> class GlobalMenu(navigation.Menu):
+    ...     grok.name('globalmenu')
+    ...     grok.implements(IGlobalMenu)
+    >>> grok_component('globalmenu', GlobalMenu)
+    True
+
+    >>> class Contact(grok.View):
+    ...     grok.context(MySite)
+    ...     grok.layer(IDefaultBrowserLayer)
+    ...     navigation.menuitem(IGlobalMenu)
+    ...     def render(self):
+    ...         return "test"
+    >>> grok_component('contact', Contact)
+    True
+
+    >>> class Logout(grok.Viewlet):
+    ...     grok.viewletmanager(IGlobalMenu)
+    ...     grok.context(MySite)
+    ...     grok.layer(IDefaultBrowserLayer)
+    ...     def render(self):
+    ...         return "logout"   
+    >>> grok_component('logout', Logout)
+    True
+ 
+    >>> globalmenu = getMultiAdapter((site, request, grok.View(site, request)), 
+    ...     IContentProvider, name="globalmenu")
+
+    >>> globalmenu.update()
+    >>> logout, contact = globalmenu.viewlets
+
+    >>> logout
+    <megrok.navigation.tests.Logout object at ...>
+
+    >>> contact
+    <megrok.navigation.util.contact object at ...>
+
+    >>> grok.layer.bind().get(logout)
+    <InterfaceClass zope.publisher.interfaces.browser.IDefaultBrowserLayer>
+
+    >>> grok.layer.bind().get(contact)
+    <InterfaceClass zope.publisher.interfaces.browser.IDefaultBrowserLayer>
+
+    >>> print globalmenu.render()
+    <div class="">
+    <div>
+         logout
+         <div class="">
+    <a href="http://127.0.0.1/site/contact">
+    contact</a>
+    </div>
+    </div>
+    </div>

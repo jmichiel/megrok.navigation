@@ -61,7 +61,7 @@ class Menu(BaseMenuOrItem, grokcore.viewlet.ViewletManager):
     def _groupItems(self):
         groups = {}
         for item in self.items:
-            group = groups.setdefault(item.group, [])
+            group = groups.setdefault(getattr(item, 'group', ''), [])
             group.append(item)
         self.groups=[]  
         for group in self.grouporder:

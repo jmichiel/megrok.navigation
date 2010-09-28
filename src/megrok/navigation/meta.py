@@ -47,11 +47,11 @@ class MenuGrokker(ViewletManagerGrokker):
                              IBrowserView, factory, item_name),
                              callable=registerMenuItem,
                              args=(factory.module_info, components.MenuItem, (None, layer, IBrowserView, factory)
-                                   , item_name, permission, itemsimplement,
+                                   , item_name, permission, itemsimplement, layer,
                                    {'title':title or submenu,
                                     'submenu': submenu,
                                     'group': group},
-                                    (order, MenuGrokker._dynamic_items)
+                                    (order, MenuGrokker._dynamic_items),
                                     ))
             MenuGrokker._dynamic_items+=1
         if issubclass(factory, components.ContentSubMenu):
@@ -65,12 +65,12 @@ class MenuGrokker(ViewletManagerGrokker):
                                  IBrowserView, parentmenu, item_name),
                                  callable=registerMenuItem,
                                  args=(factory.module_info, components.MenuItem, (None, layer, IBrowserView, parentmenu)
-                                       , item_name, permission, itemsimplement,
+                                       , item_name, permission, itemsimplement, layer,
                                        {'title':title,
                                         'icon': icon,
                                         'submenu': name,
                                         'group': group},
-                                        (order, MenuGrokker._dynamic_items)
+                                        (order, MenuGrokker._dynamic_items),
                                         ))
                 MenuGrokker._dynamic_items+=1
         if issubclass(factory, components.ContentMenu):
@@ -80,10 +80,10 @@ class MenuGrokker(ViewletManagerGrokker):
                              IBrowserView, factory, item_name),
                              callable=registerMenuItem,
                              args=(factory.module_info, components.ContentMenuItems, (None, layer, IBrowserView, factory)
-                                   , item_name, permission, None, 
+                                   , item_name, permission, None, layer, 
                                    {'group': group,
                                     'group':contentgroup},
-                                   contentorder
+                                   contentorder,
                                    ))
             MenuGrokker._dynamic_items+=1
             if contentsubmenu is not None:
@@ -96,13 +96,13 @@ class MenuGrokker(ViewletManagerGrokker):
                              IBrowserView, factory, item_name),
                              callable=registerMenuItem,
                              args=(factory.module_info, components.MenuItem, (None, layer, IBrowserView, factory)
-                                   , item_name, permission, itemsimplement,
+                                   , item_name, permission, itemsimplement, layer,
                                    {'title':title or submenu,
                                     'link': link,
                                     'icon': icon,
                                     'submenu': None,
                                     'group': group},
-                                    (order, MenuGrokker._dynamic_items)
+                                    (order, MenuGrokker._dynamic_items),
                                     ))
             MenuGrokker._dynamic_items+=1
         return True
@@ -126,20 +126,20 @@ class MenuViewGrokker(ViewGrokker):
             title = title or viewtitle or name 
             if martian.util.check_subclass(permission, grokcore.security.Permission):
                 permission =  grokcore.component.name.bind().get(permission)
-            item_name = 'AutoSiteMenuItem_%i'%MenuViewGrokker._dynamic_items
+            item_name = default_view_name(factory)
             item_itf = directives.itemsimplement.bind().get(sitemenu)
             config.action(discriminator=('viewlet', None, layer,
                              IBrowserView, sitemenu, item_name),
                              callable=registerMenuItem,
                              args=(factory.module_info, components.SiteMenuItem, (None, layer, IBrowserView, sitemenu)
-                                   , item_name, permission, item_itf, 
+                                   , item_name, permission, item_itf, layer, 
                                    {'title':title,
                                     'viewName':name,
                                     'description':description,
                                     'icon':icon,
                                     'group': group
                                     },
-                                    (order, MenuViewGrokker._dynamic_items)
+                                    (order, MenuViewGrokker._dynamic_items),
                                     )
                              )
             MenuViewGrokker._dynamic_items+=1
@@ -147,20 +147,20 @@ class MenuViewGrokker(ViewGrokker):
             title = title or viewtitle or name
             if martian.util.check_subclass(permission, grokcore.security.Permission):
                 permission =  grokcore.component.name.bind().get(permission)
-            item_name = 'AutoContextMenuItem_%i'%MenuViewGrokker._dynamic_items
+            item_name = default_view_name(factory)
             item_itf = directives.itemsimplement.bind().get(menu)
             config.action(discriminator=('viewlet', Interface, layer,
                              IBrowserView, menu, item_name),
                              callable=registerMenuItem,
                              args=(factory.module_info, components.ContextMenuItem, (context, layer, IBrowserView, menu)
-                                   , item_name, permission, item_itf,
+                                   , item_name, permission, item_itf, layer,
                                    {'title':title,
                                     'viewName':name, 
                                     'description':description,
                                     'icon':icon,
                                     'group': group
                                     },
-                                    (order, MenuViewGrokker._dynamic_items)
+                                    (order, MenuViewGrokker._dynamic_items),
                                     )
                              )
             MenuViewGrokker._dynamic_items+=1
