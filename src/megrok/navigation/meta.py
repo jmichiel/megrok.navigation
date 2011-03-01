@@ -126,7 +126,7 @@ class MenuViewGrokker(ViewGrokker):
             title = title or viewtitle or name 
             if martian.util.check_subclass(permission, grokcore.security.Permission):
                 permission =  grokcore.component.name.bind().get(permission)
-            item_name = default_view_name(factory)
+            item_name = name
             item_itf = directives.itemsimplement.bind().get(sitemenu)
             config.action(discriminator=('viewlet', None, layer,
                              IBrowserView, sitemenu, item_name),
@@ -147,7 +147,7 @@ class MenuViewGrokker(ViewGrokker):
             title = title or viewtitle or name
             if martian.util.check_subclass(permission, grokcore.security.Permission):
                 permission =  grokcore.component.name.bind().get(permission)
-            item_name = default_view_name(factory)
+            item_name = name
             item_itf = directives.itemsimplement.bind().get(menu)
             config.action(discriminator=('viewlet', Interface, layer,
                              IBrowserView, menu, item_name),

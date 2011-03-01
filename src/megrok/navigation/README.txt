@@ -908,3 +908,34 @@ Register plain viewlets and *.items together.
     </div>
     </div>
     </div>
+
+
+Let's see if we can get the individual viewlets based on their name via
+the Zope-Component Architecture
+
+    >>> from zope.viewlet.interfaces import IViewlet
+    >>> contact = getMultiAdapter(
+    ...     (site, request, grok.View(site, request), globalmenu),
+    ...     IViewlet, name=u"contact")
+    >>> contact
+    <megrok.navigation.util.contact object at ...>
+
+
+    >>> class Contact(grok.View):
+    ...     grok.context(MySite)
+    ...     grok.name('othercontact')
+    ...     grok.title('Other Link')
+    ...     grok.layer(IDefaultBrowserLayer)
+    ...     navigation.menuitem(IGlobalMenu)
+    ...     def render(self):
+    ...         return "test"
+    >>> grok_component('contact', Contact)
+    True
+
+    >>> contact1 = getMultiAdapter(
+    ...     (site, request, grok.View(site, request), globalmenu),
+    ...     IViewlet, name=u"othercontact")
+
+    >>> contact1
+    <megrok.navigation.util.othercontact object at ...>
+

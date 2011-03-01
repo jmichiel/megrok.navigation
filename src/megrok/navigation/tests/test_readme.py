@@ -3,6 +3,7 @@ Created on 29-jan-2010
 
 @author: jm
 '''
+import doctest
 import unittest
 from zope.testing import module
 from grokcore.component.testing import grok_component
@@ -14,9 +15,13 @@ def setUp(test):
 
 def test_suite():
     globs = {'grok_component': grok_component}
-    suite = unittest.TestSuite()
     readme = functional.FunctionalDocFileSuite(
-        '../README.txt', setUp=setUp, globs=globs)
+        '../README.txt', 
+        setUp=setUp,
+        globs=globs,
+        optionflags=doctest.NORMALIZE_WHITESPACE|
+                    doctest.ELLIPSIS|
+                    doctest.REPORT_NDIFF,
+        )
     readme.layer = FunctionalLayer
-    suite.addTest(readme)
-    return suite
+    return readme 
