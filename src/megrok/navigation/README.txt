@@ -890,7 +890,7 @@ Register plain viewlets and *.items together.
     <megrok.navigation.tests.Logout object at ...>
 
     >>> contact
-    <megrok.navigation.util.contact object at ...>
+    <megrok.navigation.util.MySite_contact object at ...>
 
     >>> grok.layer.bind().get(logout)
     <InterfaceClass zope.publisher.interfaces.browser.IDefaultBrowserLayer>
@@ -916,9 +916,9 @@ the Zope-Component Architecture
     >>> from zope.viewlet.interfaces import IViewlet
     >>> contact = getMultiAdapter(
     ...     (site, request, grok.View(site, request), globalmenu),
-    ...     IViewlet, name=u"contact")
+    ...     IViewlet, name=u"MySite_contact")
     >>> contact
-    <megrok.navigation.util.contact object at ...>
+    <megrok.navigation.util.MySite_contact object at ...>
 
 
     >>> class Contact(grok.View):
@@ -934,8 +934,8 @@ the Zope-Component Architecture
 
     >>> contact1 = getMultiAdapter(
     ...     (site, request, grok.View(site, request), globalmenu),
-    ...     IViewlet, name=u"othercontact")
+    ...     IViewlet, name=u"MySite_othercontact")
 
     >>> contact1
-    <megrok.navigation.util.othercontact object at ...>
+    <megrok.navigation.util.MySite_othercontact object at ...>
 

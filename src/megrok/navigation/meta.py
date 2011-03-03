@@ -21,6 +21,8 @@ import components
 import directives
 
 from util import registerMenuItem, createClass
+from zope.interface.interface import InterfaceClass
+
 
 
 
@@ -146,8 +148,11 @@ class MenuViewGrokker(ViewGrokker):
         for menu, (title, order, icon, group) in menus.items():
             title = title or viewtitle or name
             if martian.util.check_subclass(permission, grokcore.security.Permission):
-                permission =  grokcore.component.name.bind().get(permission)
-            item_name = name
+                permission = grokcore.component.name.bind().get(permission)
+            if isinstance(context, InterfaceClass):
+                item_name = "%s_%s" %(context.getName(), name) 
+            else:
+                item_name = "%s_%s" %(context.__name__, name) 
             item_itf = directives.itemsimplement.bind().get(menu)
             config.action(discriminator=('viewlet', Interface, layer,
                              IBrowserView, menu, item_name),
