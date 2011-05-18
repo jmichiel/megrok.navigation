@@ -11,6 +11,7 @@ from zope.interface import Interface, implements
 from zope.component import queryMultiAdapter
 from zope.pagetemplate.interfaces import IPageTemplate
 from zope import schema
+from zope.traversing.api import traverse
 from util import createClass
 from urllib import quote_plus
 import directives
@@ -85,10 +86,17 @@ class MenuItem(BaseMenuOrItem, grokcore.viewlet.Viewlet):
     implements(IMenuItem)
 
     _default_template = 'item.pt'
+    _icon=None
 
     link = schema.fieldproperty.FieldProperty(IMenuItem['link'])
     title = schema.fieldproperty.FieldProperty(IMenuItem['title'])
     submenu = schema.fieldproperty.FieldProperty(IMenuItem['submenu'])
+    
+    @property
+    def icon(self):
+        if self._icon is None:
+            return None
+        return traverse(self.context, self._icon, self._icon, self.request)
 
     @property
     def menu(self):

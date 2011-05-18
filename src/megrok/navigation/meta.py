@@ -69,7 +69,7 @@ class MenuGrokker(ViewletManagerGrokker):
                                  args=(factory.module_info, components.MenuItem, (None, layer, IBrowserView, parentmenu)
                                        , item_name, permission, itemsimplement, layer,
                                        {'title':title,
-                                        'icon': icon,
+                                        '_icon': icon,
                                         'submenu': name,
                                         'group': group},
                                         (order, MenuGrokker._dynamic_items),
@@ -101,7 +101,7 @@ class MenuGrokker(ViewletManagerGrokker):
                                    , item_name, permission, itemsimplement, layer,
                                    {'title':title or submenu,
                                     'link': link,
-                                    'icon': icon,
+                                    '_icon': icon,
                                     'submenu': None,
                                     'group': group},
                                     (order, MenuGrokker._dynamic_items),
@@ -138,7 +138,7 @@ class MenuViewGrokker(ViewGrokker):
                                    {'title':title,
                                     'viewName':name,
                                     'description':description,
-                                    'icon':icon,
+                                    '_icon':icon,
                                     'group': group
                                     },
                                     (order, MenuViewGrokker._dynamic_items),
@@ -162,7 +162,7 @@ class MenuViewGrokker(ViewGrokker):
                                    {'title':title,
                                     'viewName':name, 
                                     'description':description,
-                                    'icon':icon,
+                                    '_icon':icon,
                                     'group': group
                                     },
                                     (order, MenuViewGrokker._dynamic_items),

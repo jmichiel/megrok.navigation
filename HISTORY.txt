@@ -1,5 +1,12 @@
-0.5 (unreleased)
+0.6 (2010-05-09)
 ----------------
+
+- update to make icon display compatible with zope.fanstatic
+  icon paths are now traversed instead of literally used
+
+0.5 (2010-05-09)
+----------------
+
 - use current grok version 1.1rc1.cfg
 - now it's possible to register plain viewlets with the directive
   grok.viewletmanager to IMenu Items.

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from os.path import join
 
 name='megrok.navigation'
-version='0.5'
+version='0.6'
 
 readme = open(join('src', 'megrok', 'navigation', "README.txt")).read()
 history = open('HISTORY.txt').read()
@@ -13,6 +13,7 @@ install_requires = [
     'zope.viewlet',
     'zope.lifecycleevent',
     'zope.pagetemplate',
+    'zope.traversing',
     'grokcore.viewlet',
     ]
 
