@@ -44,7 +44,7 @@ setup(
     platforms = 'Any',
     zip_safe = False,
     classifiers = [
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Framework :: Zope3',
         'Intended Audience :: Other Audience',
