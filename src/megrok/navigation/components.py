@@ -96,7 +96,10 @@ class MenuItem(BaseMenuOrItem, grokcore.viewlet.Viewlet):
     def icon(self):
         if self._icon is None:
             return None
-        return traverse(self.context, self._icon, self._icon, self.request)
+        icon = self._icon
+        if (callable(icon)):
+            icon = icon()
+        return traverse(self.context, icon, icon, self.request)
 
     @property
     def menu(self):
