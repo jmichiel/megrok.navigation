@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from os.path import join
 
 name='megrok.navigation'
-version='0.6.1'
+version='0.6.2'
 
 readme = open(join('src', 'megrok', 'navigation', "README.txt")).read()
 history = open('HISTORY.txt').read()

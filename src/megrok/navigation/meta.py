@@ -67,7 +67,7 @@ class MenuGrokker(ViewletManagerGrokker):
                                  IBrowserView, parentmenu, item_name),
                                  callable=registerMenuItem,
                                  args=(factory.module_info, components.MenuItem, (None, layer, IBrowserView, parentmenu)
-                                       , item_name, permission, itemsimplement, layer,
+                                       , item_name, permission, directives.itemsimplement.bind().get(parentmenu), layer,
                                        {'title':title,
                                         '_icon': icon,
                                         'submenu': name,
